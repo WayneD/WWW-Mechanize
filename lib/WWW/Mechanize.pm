@@ -2488,7 +2488,12 @@ sub _update_page {
     # Try to decode the content. Undef will be returned if there's nothing to decompress.
     # See docs in HTTP::Message for details. Do we need to expose the options there?
     my $content = $res->decoded_content();
-    $content = $res->content if (not defined $content);
+    if (not defined $content) {
+	if ($@ && $@ =~ / \@INC \(\@INC /) {
+	    $self->die($@);
+	}
+	$content = $res->content;
+    }
 
     $content .= _taintedness();
 
